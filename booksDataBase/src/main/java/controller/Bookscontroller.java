@@ -5,15 +5,19 @@
  */
 package controller;
 
+import beans.Author;
 import beans.Book;
 import database.DB_Access;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -27,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "Bookscontroller", urlPatterns = {"/Bookscontroller"})
 public class Bookscontroller extends HttpServlet {
 
-    private List<Book> allBooks = new LinkedList<>();
+    private Map<Book, List<Author>> authorsFromBooks = new HashMap<>();
     
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -88,10 +92,14 @@ public class Bookscontroller extends HttpServlet {
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config); 
-        
+        ServletContext sc = this.getServletContext();
         DB_Access dba = new DB_Access();
         try {
-            allBooks = dba.getAllBooks();
+            List<Book> allBooks = dba.getAllBooks();
+            for (Book allBook : allBooks) {
+                authorsFromBooks.put(allBook, dba.getAuthorFromBook(allBook));
+            }
+            sc.setAttribute("bookMap", authorsFromBooks);
         } catch (Exception ex) {
             throw new RuntimeException("An error has occured");
         }
