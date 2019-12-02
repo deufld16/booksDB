@@ -17,11 +17,15 @@
         <form method="post">
             <input type="hidden" name="sort" value="sort">
             Sort by:
-            <select>
+            <select name="sortCriteria">
                 <option>Title</option>
                 <option>Author</option>
                 <option>Price</option>
             </select>
+        </form>
+        <form method="Post">
+            <input type="hidden" name="filter" value="filter">
+            <input type="radio" name="filterCriteria"
         </form>
         <table>
             <th width="30%">Title</th>

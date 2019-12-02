@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 public class Bookscontroller extends HttpServlet {
 
     private Map<Book, List<Author>> authorsFromBooks = new HashMap<>();
-    
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -46,8 +46,13 @@ public class Bookscontroller extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
-        
+
+        if (request.getParameter("sort") != null) {
+            //sortCriteria
+        }
+
         request.getRequestDispatcher("jsp/Bookview.jsp").forward(request, response);
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -91,7 +96,7 @@ public class Bookscontroller extends HttpServlet {
 
     @Override
     public void init(ServletConfig config) throws ServletException {
-        super.init(config); 
+        super.init(config);
         ServletContext sc = this.getServletContext();
         DB_Access dba = new DB_Access();
         try {
@@ -105,6 +110,4 @@ public class Bookscontroller extends HttpServlet {
         }
     }
 
-    
-    
 }
