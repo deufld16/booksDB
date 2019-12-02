@@ -47,7 +47,7 @@ public class DB_Access {
         ResultSet rs = prepStatement.executeQuery();
         List<Author> allAuthor = new LinkedList<>();
         while(rs.next()){
-            int authorid = rs.getInt("authorid");
+            int authorid = rs.getInt("author_id");
             String firstname = rs.getString("firstname");
             String lastname = rs.getString("lastname");
             String url = rs.getString("url");

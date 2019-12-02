@@ -5,8 +5,15 @@
  */
 package controller;
 
+import beans.Book;
+import database.DB_Access;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,9 +24,11 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Lukas
  */
-@WebServlet(name = "Booksview", urlPatterns = {"/Booksview"})
+@WebServlet(name = "Bookscontroller", urlPatterns = {"/Bookscontroller"})
 public class Bookscontroller extends HttpServlet {
 
+    private List<Book> allBooks = new LinkedList<>();
+    
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -32,18 +41,9 @@ public class Bookscontroller extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet Booksview</title>");            
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet Booksview at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
+        request.setCharacterEncoding("UTF-8");
+        
+        request.getRequestDispatcher("jsp/Bookview.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -85,4 +85,18 @@ public class Bookscontroller extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config); 
+        
+        DB_Access dba = new DB_Access();
+        try {
+            allBooks = dba.getAllBooks();
+        } catch (Exception ex) {
+            throw new RuntimeException("An error has occured");
+        }
+    }
+
+    
+    
 }
