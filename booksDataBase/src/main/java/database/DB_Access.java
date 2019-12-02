@@ -5,9 +5,11 @@
  */
 package database;
 
+import beans.Author;
 import beans.Book;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -20,11 +22,10 @@ import java.util.logging.Logger;
 public class DB_Access {
 
     private DB_PStatPool pStatPool = DB_PStatPool.getInstance();
-
-    public List<Book> getAllBooksFromAuthor() throws Exception {
-        PreparedStatement pStat = pStatPool.getPStat(DB_StmtType.GET_BOOKS_FROM_AUTHOR);
-        pStat.setString(1, "%%");
-        ResultSet rs = pStat.executeQuery();
+    private DB_ConnectionPool connection = DB_ConnectionPool.getInstance();
+    public List<Book> getAllBooks() throws Exception {
+        Statement stm =  connection.getConnection().createStatement();
+        ResultSet rs = stm.executeQuery("SELECT * FROM book");
         List<Book> bookList = new LinkedList<>();
         while (rs.next()) {
             int book_id = rs.getInt("book_id");
@@ -40,13 +41,30 @@ public class DB_Access {
         return bookList;
     }
     
+    public List<Author> getAuthorFromBook(Book b) throws Exception{
+        PreparedStatement prepStatement = pStatPool.getPStat(DB_StmtType.GET_AUTHORS_FROM_BOOK);
+        prepStatement.setInt(1, b.getBook_id());
+        ResultSet rs = prepStatement.executeQuery();
+        List<Author> allAuthor = new LinkedList<>();
+        while(rs.next()){
+            int authorid = rs.getInt("authorid");
+            String firstname = rs.getString("firstname");
+            String lastname = rs.getString("lastname");
+            String url = rs.getString("url");
+            allAuthor.add(new Author(authorid, firstname, lastname, url));
+        }
+        return allAuthor;
+    }
+    
     public static void main(String[] args) {
         DB_Access dba = new DB_Access();
         try {
-            List<Book> books = dba.getAllBooksFromAuthor();
-            System.out.println(books);
+            List<Book> books = dba.getAllBooks();
+            for (Book book : books) {
+                System.out.println(dba.getAuthorFromBook(book));
+            }
         } catch (Exception ex) {
-            Logger.getLogger(DB_Access.class.getName()).log(Level.SEVERE, null, ex);
+            throw new RuntimeException(ex.toString());
         }
         
     }

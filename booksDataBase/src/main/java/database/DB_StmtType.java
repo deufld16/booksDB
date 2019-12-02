@@ -10,10 +10,7 @@ package database;
  * @author Florian
  */
 public enum DB_StmtType {
-    
-    GET_BOOKS_FROM_AUTHOR("SELECT * FROM book b INNER JOIN bookauthor ba ON b.book_id = ba.book_id "
-            + "INNER JOIN author a ON ba.author_id = a.author_id "
-            + "WHERE a.firstname || ' ' || a.lastname LIKE ?");
+    GET_AUTHORS_FROM_BOOK("SELECT * FROM bookauthor b INNER JOIN author a WHERE b.book_id=?");
     
     private String sqlString;
 
