@@ -48,7 +48,7 @@ public class Bookscontroller extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         if (request.getParameter("sort") != null) {
-            //sortCriteria
+            String sortType = request.getParameter("sort");
         }
 
         request.getRequestDispatcher("jsp/Bookview.jsp").forward(request, response);
