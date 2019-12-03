@@ -6,3 +6,16 @@ table, th, td{
 table{
     margin-top: 2em;
 }
+body{
+    background-color: #660000;
+    color: white;
+}
+#comboBox{
+    width: 200px;
+}
+.radioButton{
+    width: 100px;
+}
+#filterText{
+    width: 250px;
+}

@@ -5,6 +5,8 @@
  */
 package beans;
 
+import java.util.Objects;
+
 /**
  *
  * @author Florian
@@ -73,6 +75,36 @@ public class Book {
     public void setIsbn(String isbn) {
         this.isbn = isbn;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Book other = (Book) obj;
+        if (this.book_id != other.book_id) {
+            return false;
+        }
+        if (this.publisher_id != other.publisher_id) {
+            return false;
+        }
+        if (!Objects.equals(this.title, other.title)) {
+            return false;
+        }
+        return true;
+    }
    
-   
+    
 }

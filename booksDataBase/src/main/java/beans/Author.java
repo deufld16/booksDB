@@ -14,13 +14,57 @@ public class Author {
     private String firstname;
     private String lastname;
     private String url;
+    private int rank;
 
-    public Author(int authorid, String firstname, String lastname, String url) {
+    public Author(int authorid, String firstname, String lastname, String url, int rank) {
         this.authorid = authorid;
         this.firstname = firstname;
         this.lastname = lastname;
         this.url = url;
+        this.rank = rank;
     }
+
+    public int getAuthorid() {
+        return authorid;
+    }
+
+    public void setAuthorid(int authorid) {
+        this.authorid = authorid;
+    }
+
+    public String getFirstname() {
+        return firstname;
+    }
+
+    public void setFirstname(String firstname) {
+        this.firstname = firstname;
+    }
+
+    public String getLastname() {
+        return lastname;
+    }
+
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
+    }
+    
+    
 
     @Override
     public String toString() {

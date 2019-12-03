@@ -7,6 +7,7 @@ package database;
 
 import beans.Author;
 import beans.Book;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -22,9 +23,12 @@ import java.util.logging.Logger;
 public class DB_Access {
 
     private DB_PStatPool pStatPool = DB_PStatPool.getInstance();
-    private DB_ConnectionPool connection = DB_ConnectionPool.getInstance();
+    private Connection connection = null;
+    private DB_ConnectionPool conPool = DB_ConnectionPool.getInstance();
+
     public List<Book> getAllBooks() throws Exception {
-        Statement stm =  connection.getConnection().createStatement();
+        connection = conPool.getConnection();
+        Statement stm = connection.createStatement();
         ResultSet rs = stm.executeQuery("SELECT * FROM book");
         List<Book> bookList = new LinkedList<>();
         while (rs.next()) {
@@ -38,24 +42,27 @@ public class DB_Access {
             Book b = new Book(book_id, title, url, price, publisher_id, isbn);
             bookList.add(b);
         }
+        DB_ConnectionPool.getInstance().releaseConnection(connection);
         return bookList;
     }
-    
-    public List<Author> getAuthorFromBook(Book b) throws Exception{
+
+    public List<Author> getAuthorFromBook(Book b) throws Exception {
         PreparedStatement prepStatement = pStatPool.getPStat(DB_StmtType.GET_AUTHORS_FROM_BOOK);
         prepStatement.setInt(1, b.getBook_id());
         ResultSet rs = prepStatement.executeQuery();
         List<Author> allAuthor = new LinkedList<>();
-        while(rs.next()){
+        while (rs.next()) {
             int authorid = rs.getInt("author_id");
             String firstname = rs.getString("firstname");
             String lastname = rs.getString("lastname");
             String url = rs.getString("url");
-            allAuthor.add(new Author(authorid, firstname, lastname, url));
+            // int rank = rs.getInt("rank");
+            allAuthor.add(new Author(authorid, firstname, lastname, url, 1));
         }
+        pStatPool.realesePStat(prepStatement);
         return allAuthor;
     }
-    
+
     public static void main(String[] args) {
         DB_Access dba = new DB_Access();
         try {
@@ -66,8 +73,6 @@ public class DB_Access {
         } catch (Exception ex) {
             throw new RuntimeException(ex.toString());
         }
-        
+
     }
 }
-
-
