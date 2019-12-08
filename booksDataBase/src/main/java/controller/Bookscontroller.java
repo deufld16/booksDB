@@ -49,24 +49,27 @@ public class Bookscontroller extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
+        String order = "";
+        if (request.getParameter("filterOrder") != null) {
+            order = request.getParameter("filterOrder");
+        } else if (request.getSession().getAttribute("order") != null) {
+            order = request.getSession().getAttribute("order").toString();
+        } else {
+            order = "down";
+        }
         if (request.getParameter("sortCriteria") != null) {
             String sortType = request.getParameter("sortCriteria");
-            String order = request.getParameter("filterOrder");
-            if (order == null) {
-                order = "up";
-            }
+
             sort(sortType, order.equals("down"));
             request.getSession().setAttribute("sort", sortType);
             request.getSession().setAttribute("order", order);
         } else if (request.getParameter("filter") != null) {
             String filteredBy = request.getParameter("filterCriteria");
-            String order = request.getParameter("filterOrder");
             String filterString = request.getParameter("filter");
             request.getSession().setAttribute("filterString", "");
             DB_Access dba = new DB_Access();
             if (request.getParameter("filterBtn").equalsIgnoreCase("entfernen")) {
                 filteredBy = "";
-                order = "up";
                 authorsFromBooks.clear();
                 filteredBooks = new LinkedList<>(allBooks);
                 for (Book allBook : filteredBooks) {
@@ -80,10 +83,6 @@ public class Bookscontroller extends HttpServlet {
             if (filteredBy == null) {
                 filteredBy = "title";
             }
-            if (order == null) {
-                order = "up";
-            }
-
             filteredBooks.clear();
 
             if (filteredBy.equalsIgnoreCase("title")) {
@@ -130,9 +129,12 @@ public class Bookscontroller extends HttpServlet {
             request.getSession().setAttribute("radioButton", filteredBy);
             request.getSession().setAttribute("books", filteredBooks);
             request.getSession().setAttribute("filterString", filterString);
-            request.getSession().setAttribute("order", order);
+        }else{
+            //hier
+            request.getSession().setAttribute("books", filteredBooks);
         }
-
+        request.getSession().setAttribute("order", order);
+        
         request.getRequestDispatcher("jsp/Bookview.jsp").forward(request, response);
 
     }

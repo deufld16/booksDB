@@ -38,14 +38,29 @@
                 <div class="row">
                     <legend class="col-form-label col-sm-2 pt-0">Order</legend>
                     <div class="col-sm-10">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="filterOrder" id="radAufsteigend" value="up" onclick="document.getElementById('sort').form.submit()">
-                            <label class="form-check-label" for="radAufsteigend">Up</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="radAbsteigend" name="filterOrder" value="down" onclick="document.getElementById('sort').form.submit()">
-                            <label class="form-check-label" for="radAbsteigend">Down</label>
-                        </div>
+                        <c:choose>
+                            <c:when test="${sessionScope.order == 'down'}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="filterOrder" id="radAufsteigend" value="up" onclick="document.getElementById('sort').form.submit()">
+                                    <label class="form-check-label" for="radAufsteigend">Up</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" checked="true" type="radio" id="radAbsteigend" name="filterOrder" value="down" onclick="document.getElementById('sort').form.submit()">
+                                    <label class="form-check-label" for="radAbsteigend">Down</label>
+                                </div>
+                            </c:when>
+                            <c:otherwise>
+                                <div class="form-check">
+                                    <input class="form-check-input" checked="true" type="radio" name="filterOrder" id="radAufsteigend" value="up" onclick="document.getElementById('sort').form.submit()">
+                                    <label class="form-check-label" for="radAufsteigend">Up</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="radAbsteigend" name="filterOrder" value="down" onclick="document.getElementById('sort').form.submit()">
+                                    <label class="form-check-label" for="radAbsteigend">Down</label>
+                                </div>
+
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                 </div>
                 <input type="hidden" name="sort" value="sort">
@@ -58,7 +73,7 @@
                         <legend class="col-form-label col-sm-2 pt-0">Filter By:</legend>
                         <div class="col-sm-10">
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" id="radAuthor" name="filterCriteria" value="author" >
+                                <input class="form-check-input" checked="true" type="radio" id="radAuthor" name="filterCriteria" value="author">
                                 <label class="form-check-label" for="radAuthor">Author</label>
                             </div>
                             <div class="form-check">
@@ -66,6 +81,7 @@
                                 <label class="form-check-label" for="radTitle">Title</label>
                             </div>
                         </div>
+
                     </div>
 
                     <div class="form-group row">
@@ -75,21 +91,9 @@
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-primary" value="übernehmen" name="filterBtn">Filter</button>
-                        <button type="submit" class="btn btn-primary" value="entfernen" name="filterBtn" onclick="document.getElementById('filterText').value = ''; this.form.submit()">Remove</button>
+                        <button type="submit" class="btn btn-primary" value="entfernen" name="filterBtn" onclick="document.getElementById('filterText').value = '';
+                                this.form.submit()">Remove</button>
                     </div>
-                    <script>
-                        if ("${sessionScope.radioButton}" == 'title') {
-                            document.getElementById("radTitle").checked = true;
-                        } else {
-                            document.getElementById("radAuthor").checked = true;
-                        }
-                        if ("${sessionScope.order}" == 'down') {
-                            document.getElementById("radAbsteigend").checked = true;
-                        } else {
-                            document.getElementById("radAufsteigend").checked = true;
-                        }
-                        document.getElementById("filterText").value = "${sessionScope.filterString}";
-                    </script>
             </form>
         </div>
         <div class="container">
