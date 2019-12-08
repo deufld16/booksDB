@@ -52,14 +52,13 @@ public class Bookscontroller extends HttpServlet {
         String order = "";
 
         if (request.getParameter("sortCriteria") != null) { //Sortierung
-            System.out.println("hir");
             String sortType = request.getParameter("sortCriteria");
             order = request.getParameter("filterOrder");
             sort(sortType, order.equals("down"));
             request.getSession().setAttribute("sort", sortType);
             request.getSession().setAttribute("order", order);
-        } else if (request.getParameter("filter") != null) {
-            System.out.println("Da gewesen obwohl i nt soll");
+        } else if (request.getParameter("filter") != null) { //Filtern
+            order = request.getSession().getAttribute("order").toString();
             String filteredBy = request.getParameter("filterCriteria");
             String filterString = request.getParameter("filter");
             request.getSession().setAttribute("filterString", "");
