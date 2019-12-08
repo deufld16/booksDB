@@ -9,7 +9,6 @@ import beans.Author;
 import beans.Book;
 import database.DB_Access;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,7 +24,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -53,13 +51,23 @@ public class Bookscontroller extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         if (request.getParameter("sortCriteria") != null) {
             String sortType = request.getParameter("sortCriteria");
-            filter(sortType);
+            String order = request.getParameter("filterOrder");
+            if (order == null) {
+                order = "up";
+            }
+            sort(sortType, order.equals("down"));
             request.getSession().setAttribute("sort", sortType);
+            request.getSession().setAttribute("order", order);
         } else if (request.getParameter("filter") != null) {
+            String filteredBy = request.getParameter("filterCriteria");
+            String order = request.getParameter("filterOrder");
+            String filterString = request.getParameter("filter");
+            request.getSession().setAttribute("filterString", "");
             DB_Access dba = new DB_Access();
             if (request.getParameter("filterBtn").equalsIgnoreCase("entfernen")) {
+                filteredBy = "";
+                order = "up";
                 authorsFromBooks.clear();
-                System.out.println(allBooks);
                 filteredBooks = new LinkedList<>(allBooks);
                 for (Book allBook : filteredBooks) {
                     try {
@@ -68,72 +76,89 @@ public class Bookscontroller extends HttpServlet {
                         Logger.getLogger(Bookscontroller.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-               request.getSession().setAttribute("books", filteredBooks);
+            }
+            if (filteredBy == null) {
+                filteredBy = "title";
+            }
+            if (order == null) {
+                order = "up";
+            }
+
+            filteredBooks.clear();
+
+            if (filteredBy.equalsIgnoreCase("title")) {
+                filteredBooks = allBooks
+                        .stream()
+                        .filter(s -> s.getTitle().toUpperCase().contains(filterString.toUpperCase()))
+                        .collect(Collectors.toList());
+                sort(request.getSession().getAttribute("sort") == null ? "Title" : request.getSession().getAttribute("sort").toString(), order.equals("down"));
+                authorsFromBooks.clear();
+                for (Book filteredBook : filteredBooks) {
+                    try {
+                        authorsFromBooks.put(filteredBook, dba.getAuthorFromBook(filteredBook));
+                    } catch (Exception ex) {
+                        throw new RuntimeException("error");
+                    }
+                }
             } else {
-                String sortedBy = request.getParameter("filterCriteria");
-                String filterString = request.getParameter("filter");
-                if (sortedBy.equalsIgnoreCase("title")) {
-                    filteredBooks.clear();
-                    filteredBooks = allBooks
-                            .stream()
-                            .filter(s -> s.getTitle().toUpperCase().contains(filterString.toUpperCase()))
-                            .collect(Collectors.toList());
-                    filter(request.getSession().getAttribute("sort") == null ? "Title" : request.getSession().getAttribute("sort").toString());
-                    authorsFromBooks.clear();
-                    for (Book filteredBook : filteredBooks) {
-                        try {
-                            authorsFromBooks.put(filteredBook, dba.getAuthorFromBook(filteredBook));
-                        } catch (Exception ex) {
-                            throw new RuntimeException("error");
+                authorsFromBooks.clear();
+                for (Book allBook : allBooks) {
+                    try {
+                        authorsFromBooks.put(allBook, dba.getAuthorFromBook(allBook));
+                    } catch (Exception ex) {
+                        Logger.getLogger(Bookscontroller.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                for (Book book : authorsFromBooks.keySet()) {
+                    for (Author author : authorsFromBooks.get(book)) {
+                        if ((author.getLastname() + " " + author.getFirstname()).toUpperCase().contains(filterString.toUpperCase())) {
+                            filteredBooks.add(book);
+                            break;
                         }
                     }
-                    request.getSession().setAttribute("books", filteredBooks);
-                } else {
-                    filteredBooks.clear();
-                    authorsFromBooks.clear();
-                    for (Book allBook : allBooks) {
-                        try {
-                            authorsFromBooks.put(allBook, dba.getAuthorFromBook(allBook));
-                        } catch (Exception ex) {
-                            Logger.getLogger(Bookscontroller.class.getName()).log(Level.SEVERE, null, ex);
-                        }
+                }
+                sort(request.getSession().getAttribute("sort") == null ? "Title" : request.getSession().getAttribute("sort").toString(), order.equals("down"));
+                authorsFromBooks.clear();
+                for (Book filteredBook : filteredBooks) {
+                    try {
+                        authorsFromBooks.put(filteredBook, dba.getAuthorFromBook(filteredBook));
+                    } catch (Exception ex) {
+                        throw new RuntimeException("error");
                     }
-                    for (Book book : authorsFromBooks.keySet()) {
-                        for (Author author : authorsFromBooks.get(book)) {
-                            if ((author.getLastname() + " " + author.getFirstname()).toUpperCase().contains(filterString.toUpperCase())) {
-                                filteredBooks.add(book);
-                                break;
-                            }
-                        }
-                    }
-                    filter(request.getSession().getAttribute("sort") == null ? "Title" : request.getSession().getAttribute("sort").toString());
-                    authorsFromBooks.clear();
-                    for (Book filteredBook : filteredBooks) {
-                        try {
-                            authorsFromBooks.put(filteredBook, dba.getAuthorFromBook(filteredBook));
-                        } catch (Exception ex) {
-                            throw new RuntimeException("error");
-                        }
-                    }
-                    request.getSession().setAttribute("radioButton", sortedBy);
-                    request.getSession().setAttribute("books", filteredBooks);
                 }
             }
+            request.getSession().setAttribute("radioButton", filteredBy);
+            request.getSession().setAttribute("books", filteredBooks);
+            request.getSession().setAttribute("filterString", filterString);
+            request.getSession().setAttribute("order", order);
         }
 
         request.getRequestDispatcher("jsp/Bookview.jsp").forward(request, response);
 
     }
 
-    private void filter(String type) {
+    private void sort(String type, boolean reverse) {
         if (type.equalsIgnoreCase("Title")) {
-            filteredBooks.sort(Comparator.comparing(Book::getTitle));
+            if (reverse) {
+                filteredBooks.sort(Comparator.comparing(Book::getTitle).reversed());
+            } else {
+                filteredBooks.sort(Comparator.comparing(Book::getTitle));
+            }
         } else if (type.equalsIgnoreCase("Author")) {
-            for (Book book : authorsFromBooks.keySet()) {
-
+            Comparator<Book> comparator = (b1, b2) -> {
+                return authorsFromBooks.get(b1).toString().compareTo(authorsFromBooks.get(b2).toString());
+            };
+            if (reverse) {
+                filteredBooks.sort(comparator.reversed());
+            } else {
+                filteredBooks.sort(comparator);
             }
         } else {
-            filteredBooks.sort(Comparator.comparing(Book::getPrice).reversed());
+            if (reverse) {
+                filteredBooks.sort(Comparator.comparing(Book::getPrice).reversed());
+            } else {
+                filteredBooks.sort(Comparator.comparing(Book::getPrice));
+            }
         }
     }
 

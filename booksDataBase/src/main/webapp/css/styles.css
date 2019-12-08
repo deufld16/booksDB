@@ -19,3 +19,20 @@ body{
 #filterText{
     width: 250px;
 }
+
+.form-container{
+    margin-left: 2em;
+}
+
+.radDescription{
+    margin-right: 1em;
+}
+
+table{
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+p{
+    
+}
