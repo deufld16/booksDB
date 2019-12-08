@@ -50,26 +50,22 @@ public class Bookscontroller extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
         String order = "";
-        if (request.getParameter("filterOrder") != null) {
-            order = request.getParameter("filterOrder");
-        } else if (request.getSession().getAttribute("order") != null) {
-            order = request.getSession().getAttribute("order").toString();
-        } else {
-            order = "down";
-        }
-        if (request.getParameter("sortCriteria") != null) {
-            String sortType = request.getParameter("sortCriteria");
 
+        if (request.getParameter("sortCriteria") != null) { //Sortierung
+            System.out.println("hir");
+            String sortType = request.getParameter("sortCriteria");
+            order = request.getParameter("filterOrder");
             sort(sortType, order.equals("down"));
             request.getSession().setAttribute("sort", sortType);
             request.getSession().setAttribute("order", order);
         } else if (request.getParameter("filter") != null) {
+            System.out.println("Da gewesen obwohl i nt soll");
             String filteredBy = request.getParameter("filterCriteria");
             String filterString = request.getParameter("filter");
             request.getSession().setAttribute("filterString", "");
             DB_Access dba = new DB_Access();
-            if (request.getParameter("filterBtn").equalsIgnoreCase("entfernen")) {
-                filteredBy = "";
+            if (request.getParameter("filterBtn") != null && request.getParameter("filterBtn").equalsIgnoreCase("entfernen")) {
+                filteredBy = "title";
                 authorsFromBooks.clear();
                 filteredBooks = new LinkedList<>(allBooks);
                 for (Book allBook : filteredBooks) {
@@ -126,15 +122,17 @@ public class Bookscontroller extends HttpServlet {
                     }
                 }
             }
-            request.getSession().setAttribute("radioButton", filteredBy);
+            request.getSession().setAttribute("filterBy", filteredBy);
             request.getSession().setAttribute("books", filteredBooks);
             request.getSession().setAttribute("filterString", filterString);
-        }else{
+        } else {
             //hier
+            request.getSession().setAttribute("order", "up");
+            request.getSession().setAttribute("sort", "Title");
+            request.getSession().setAttribute("filterBy", "title");
             request.getSession().setAttribute("books", filteredBooks);
         }
-        request.getSession().setAttribute("order", order);
-        
+
         request.getRequestDispatcher("jsp/Bookview.jsp").forward(request, response);
 
     }
